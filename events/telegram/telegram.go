@@ -55,7 +55,7 @@ func (d *Dispatcher) Fetch(limit int) ([]events.Event, error) {
 	return res, nil
 }
 
-func (d Dispatcher) Process(event events.Event) error {
+func (d *Dispatcher) Process(event events.Event) error {
 	switch event.Type {
 	case events.Message:
 		return d.processMessage(event)
