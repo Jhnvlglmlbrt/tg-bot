@@ -57,7 +57,7 @@ func (c *Client) Updates(offset int, limit int) (updates []Update, err error) {
 
 func (c *Client) SendMessage(chatID int, text string) error {
 	q := url.Values{}
-	q.Add("chatID", strconv.Itoa(chatID))
+	q.Add("chat_id", strconv.Itoa(chatID))
 	q.Add("text", text)
 
 	_, err := c.doRequest(sendMessageMethod, q)
