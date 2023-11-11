@@ -23,7 +23,7 @@ func (d *Dispatcher) docmd(text string, chatID int, username string) error {
 	log.Printf("got new command %s from %s", text, username)
 
 	if isAddCmd(text) {
-		return d.savePage(text, chatID, username)
+		return d.savePage(chatID, text, username)
 	}
 
 	switch text {
@@ -38,7 +38,7 @@ func (d *Dispatcher) docmd(text string, chatID int, username string) error {
 	}
 }
 
-func (d *Dispatcher) savePage(pageURL string, chatID int, username string) (err error) {
+func (d *Dispatcher) savePage(chatID int, pageURL string, username string) (err error) {
 	defer func() { err = e.WrapIfErr("can't do command: save page", err) }()
 
 	sendMsg := NewMessageSender(chatID, d.tg)
@@ -58,6 +58,10 @@ func (d *Dispatcher) savePage(pageURL string, chatID int, username string) (err 
 	}
 
 	if err := d.storage.Save(page); err != nil {
+		return err
+	}
+
+	if err := d.tg.SendMessage(chatID, msgSaved); err != nil {
 		return err
 	}
 

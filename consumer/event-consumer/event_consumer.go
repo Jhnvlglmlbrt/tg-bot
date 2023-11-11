@@ -1,4 +1,4 @@
-package consumer
+package event_consumer
 
 import (
 	"log"
@@ -16,12 +16,12 @@ type Consumer struct {
 func New(fetcher events.Fetcher, processor events.Processor, batchSize int) Consumer {
 	return Consumer{
 		fetcher:   fetcher,
-		processor: nil,
-		batchSize: 0,
+		processor: processor,
+		batchSize: batchSize,
 	}
 }
 
-func (c *Consumer) Start() error {
+func (c Consumer) Start() error {
 	for {
 		gotEvents, err := c.fetcher.Fetch(c.batchSize)
 		if err != nil {

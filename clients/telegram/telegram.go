@@ -34,7 +34,9 @@ func newBasePath(token string) string {
 	return "bot" + token
 }
 
-func (c *Client) Updates(offset int, limit int) ([]Update, error) {
+func (c *Client) Updates(offset int, limit int) (updates []Update, err error) {
+	defer func() { err = e.WrapIfErr("can't get updates", err) }()
+
 	q := url.Values{}
 	q.Add("offset", strconv.Itoa(offset))
 	q.Add("limit", strconv.Itoa(limit))

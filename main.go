@@ -5,7 +5,7 @@ import (
 	"log"
 
 	tgClient "github.com/Jhnvlglmlbrt/tg-bot/clients/telegram"
-	consumer "github.com/Jhnvlglmlbrt/tg-bot/consumer/event-consumer"
+	event_consumer "github.com/Jhnvlglmlbrt/tg-bot/consumer/event-consumer"
 	"github.com/Jhnvlglmlbrt/tg-bot/events/telegram"
 	"github.com/Jhnvlglmlbrt/tg-bot/storage/files"
 )
@@ -24,7 +24,7 @@ func main() {
 
 	log.Print("Service started")
 
-	consumer := consumer.New(eventsProcessor, eventsProcessor, batchSize)
+	consumer := event_consumer.New(eventsProcessor, eventsProcessor, batchSize)
 
 	if err := consumer.Start(); err != nil {
 		log.Fatal("service is stopped", err)
@@ -33,8 +33,9 @@ func main() {
 
 func mustTokenHost() (string, string) {
 
-	token := flag.String("t", "", "token for access to tg bot")
 	host := flag.String("h", "", "host of telegram api")
+
+	token := flag.String("t", "", "token for access to tg bot")
 
 	flag.Parse()
 
@@ -42,5 +43,5 @@ func mustTokenHost() (string, string) {
 		log.Fatal("Host and token must be specified")
 	}
 
-	return *token, *host
+	return *host, *token
 }
