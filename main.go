@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	storagePath = "storage"
+	storagePath = "files_storage"
 	batchSize   = 100
 )
 
