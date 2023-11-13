@@ -26,9 +26,8 @@ func New(basePath string) Storage {
 func (s Storage) Save(page *storage.Page) (err error) {
 	defer func() { err = e.WrapIfErr("can't save page", err) }()
 
-	fPath := filepath.Join(s.basePath, page.UserName)
-
-	if err = os.MkdirAll(fPath, defaultPerm); err != nil {
+	userPath, err := s.createUserDir(page.UserName)
+	if err != nil {
 		return err
 	}
 
@@ -37,7 +36,7 @@ func (s Storage) Save(page *storage.Page) (err error) {
 		return err
 	}
 
-	fPath = filepath.Join(fPath, fName)
+	fPath := filepath.Join(userPath, fName)
 
 	file, err := os.Create(fPath)
 	if err != nil {
@@ -56,9 +55,12 @@ func (s Storage) Save(page *storage.Page) (err error) {
 func (s Storage) PickRandom(userName string) (page *storage.Page, err error) {
 	defer func() { err = e.WrapIfErr("can't pick random page", err) }()
 
-	path := filepath.Join(s.basePath, userName)
+	userPath, err := s.createUserDir(userName)
+	if err != nil {
+		return nil, err
+	}
 
-	files, err := os.ReadDir(path)
+	files, err := os.ReadDir(userPath)
 	if err != nil {
 		return nil, err
 	}
@@ -73,8 +75,7 @@ func (s Storage) PickRandom(userName string) (page *storage.Page, err error) {
 
 	file := files[n]
 
-	return s.decodePage(filepath.Join(path, file.Name()))
-
+	return s.decodePage(filepath.Join(userPath, file.Name()))
 }
 
 func (s Storage) Remove(p *storage.Page) error {
@@ -134,4 +135,19 @@ func (s Storage) decodePage(filepath string) (*storage.Page, error) {
 
 func fileName(p *storage.Page) (string, error) {
 	return p.Hash()
+}
+
+func (s Storage) createUserDir(userName string) (string, error) {
+	userPath := filepath.Join(s.basePath, userName)
+
+	_, err := os.Stat(userPath)
+	if os.IsNotExist(err) {
+		if err := os.MkdirAll(userPath, defaultPerm); err != nil {
+			return "", err
+		}
+	} else if err != nil {
+		return "", err
+	}
+
+	return userPath, nil
 }
