@@ -31,5 +31,5 @@ make run host="api.telegram.org" token="your-token"
 
 - **/start**
 - **/help**  
-- **/rnd** - sends 1 random saved link to the client.
+- **/rnd** - отправляет 1 случайную ссылку клиенту.
 
