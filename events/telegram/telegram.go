@@ -1,6 +1,7 @@
 package telegram
 
 import (
+	"context"
 	"errors"
 
 	"github.com/Jhnvlglmlbrt/tg-bot/clients/telegram"
@@ -33,8 +34,8 @@ var (
 )
 
 // Fetched updates
-func (d *Dispatcher) Fetch(limit int) ([]events.Event, error) {
-	updates, err := d.tg.Updates(d.offset, limit)
+func (d *Dispatcher) Fetch(ctx context.Context, limit int) ([]events.Event, error) {
+	updates, err := d.tg.Updates(ctx, d.offset, limit)
 
 	if err != nil {
 		return nil, e.Wrap("can't get events", err)
@@ -55,22 +56,22 @@ func (d *Dispatcher) Fetch(limit int) ([]events.Event, error) {
 	return res, nil
 }
 
-func (d *Dispatcher) Process(event events.Event) error {
+func (d *Dispatcher) Process(ctx context.Context, event events.Event) error {
 	switch event.Type {
 	case events.Message:
-		return d.processMessage(event)
+		return d.processMessage(ctx, event)
 	default:
 		return e.Wrap("can't process message", ErrUnknownEventType)
 	}
 }
 
-func (d *Dispatcher) processMessage(event events.Event) error {
+func (d *Dispatcher) processMessage(ctx context.Context, event events.Event) error {
 	meta, err := meta(event)
 	if err != nil {
 		return e.Wrap("can't process message", err)
 	}
 
-	if err := d.docmd(event.Text, meta.ChatID, meta.Username); err != nil {
+	if err := d.docmd(ctx, event.Text, meta.ChatID, meta.Username); err != nil {
 		return e.Wrap("can't process message", err)
 	}
 
