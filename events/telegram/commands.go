@@ -16,6 +16,7 @@ const (
 	RndCmd   = "/rnd"
 	HelpCmd  = "/help"
 	StartCmd = "/start"
+	ListCmd  = "/list"
 )
 
 func (d *Dispatcher) docmd(ctx context.Context, text string, chatID int, username string) error {
@@ -34,6 +35,8 @@ func (d *Dispatcher) docmd(ctx context.Context, text string, chatID int, usernam
 		return d.sendHelp(ctx, chatID)
 	case StartCmd:
 		return d.sendHello(ctx, chatID)
+	case ListCmd:
+		return d.sendList(ctx, chatID)
 	default:
 		return d.tg.SendMessage(ctx, chatID, msgUnknownCommand)
 	}
@@ -92,6 +95,27 @@ func (d *Dispatcher) sendRandom(ctx context.Context, chatID int, username string
 
 func (d *Dispatcher) sendHelp(ctx context.Context, chatID int) error {
 	return d.tg.SendMessage(ctx, chatID, msgHelp)
+}
+
+func (d *Dispatcher) sendList(ctx context.Context, chatID int) (err error) {
+	defer func() { err = e.WrapIfErr("can't do command: can't send list", err) }()
+
+	sendMsg := NewMessageSender(ctx, chatID, d.tg)
+
+	urls, err := d.storage.List(ctx)
+	if err != nil && !errors.Is(err, storage.ErrNoSavedPages) {
+		return err
+	}
+
+	if errors.Is(err, storage.ErrNoSavedPages) {
+		return sendMsg(msgNoSavedPages)
+	}
+
+	if err := d.tg.SendMessage(ctx, chatID, urls); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (d *Dispatcher) sendHello(ctx context.Context, chatID int) error {
