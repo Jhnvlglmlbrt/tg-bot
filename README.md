@@ -3,7 +3,7 @@
 <img src="https://pepy.tech/badge/rss-aggregator/month" alt="https://pepy.tech/project/rss-aggregator">
 <img src="https://img.shields.io/github/license/Jhnvlglmlbrt/rss-aggregator.svg" alt="https://github.com/Jhnvlglmlbrt/rss-aggregator/blob/master/LICENSE"> -->
 
-# ⚙️ Tg-bot для сохранения ссылок
+# ⚙️ Tg-bot
 
 #### # Создание телеграм бота, который позволяет:
 
@@ -34,3 +34,11 @@ make run host="api.telegram.org" token="your-token"
 - **/help**  
 - **/rnd** - отправляет 1 случайную ссылку клиенту.
 - **/list** - отправляет список ссылок клиенту.
+
+## Roadmap
+
+- [] Улучшенный вывод списка
+- [] Удаление ссылок
+- [] Добавление категорий
+- [] Уведомления
+- [] Импорт и экспорт ссылок
