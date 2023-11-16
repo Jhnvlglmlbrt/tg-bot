@@ -3,6 +3,7 @@ package sqlite
 import (
 	"context"
 	"database/sql"
+	"strings"
 
 	"github.com/Jhnvlglmlbrt/tg-bot/lib/e"
 	"github.com/Jhnvlglmlbrt/tg-bot/storage"
@@ -89,4 +90,31 @@ func (s *Storage) Init(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func (s *Storage) List(ctx context.Context) (string, error) {
+	q := `SELECT url, user_name FROM pages`
+
+	rows, err := s.db.QueryContext(ctx, q)
+	if err != nil {
+		return "", e.Wrap("can't open database", err)
+	}
+	defer rows.Close()
+
+	var urls []string
+
+	for rows.Next() {
+		var url, userName string
+		if err := rows.Scan(&url, &userName); err != nil {
+			return "", e.Wrap("can't scan row", err)
+		}
+
+		urls = append(urls, url)
+	}
+
+	if err := rows.Err(); err != nil {
+		return "", e.Wrap("error iterating over rows", err)
+	}
+
+	return strings.Join(urls, "\n\n"), nil
 }
