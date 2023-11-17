@@ -3,6 +3,7 @@ package sqlite
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"strings"
 
 	"github.com/Jhnvlglmlbrt/tg-bot/lib/e"
@@ -93,7 +94,7 @@ func (s *Storage) Init(ctx context.Context) error {
 }
 
 func (s *Storage) List(ctx context.Context) (string, error) {
-	q := `SELECT url, user_name FROM pages`
+	q := `SELECT url FROM pages`
 
 	rows, err := s.db.QueryContext(ctx, q)
 	if err != nil {
@@ -103,13 +104,15 @@ func (s *Storage) List(ctx context.Context) (string, error) {
 
 	var urls []string
 
+	i := 1
 	for rows.Next() {
-		var url, userName string
-		if err := rows.Scan(&url, &userName); err != nil {
+		var url string
+		if err := rows.Scan(&url); err != nil {
 			return "", e.Wrap("can't scan row", err)
 		}
 
-		urls = append(urls, url)
+		urls = append(urls, fmt.Sprintf("%d. %s", i, url))
+		i++
 	}
 
 	if err := rows.Err(); err != nil {
