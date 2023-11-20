@@ -13,10 +13,11 @@ import (
 )
 
 const (
-	RndCmd   = "/rnd"
-	HelpCmd  = "/help"
-	StartCmd = "/start"
-	ListCmd  = "/list"
+	RndCmd    = "/rnd"
+	HelpCmd   = "/help"
+	StartCmd  = "/start"
+	ListCmd   = "/list"
+	RemoveCmd = "/remove"
 )
 
 func (d *Dispatcher) docmd(ctx context.Context, text string, chatID int, username string) error {
@@ -26,6 +27,8 @@ func (d *Dispatcher) docmd(ctx context.Context, text string, chatID int, usernam
 
 	if isAddCmd(text) {
 		return d.savePage(ctx, chatID, text, username)
+	} else if isRemoveCmd(text) {
+		return d.removePage(ctx, chatID, text, username)
 	}
 
 	switch text {
@@ -72,8 +75,27 @@ func (d *Dispatcher) savePage(ctx context.Context, chatID int, pageURL string, u
 	return nil
 }
 
+func (d *Dispatcher) removePage(ctx context.Context, chatID int, text string, username string) (err error) {
+	defer func() { err = e.WrapIfErr("can't do command: delete page", err) }()
+
+	sendMsg := NewMessageSender(ctx, chatID, d.tg)
+
+	pageURL := strings.TrimSpace(strings.TrimPrefix(text, RemoveCmd))
+
+	page := &storage.Page{
+		URL:      pageURL,
+		UserName: username,
+	}
+
+	if err := d.storage.Remove(ctx, page); err != nil {
+		return err
+	}
+
+	return sendMsg(msgRemoved)
+}
+
 func (d *Dispatcher) sendRandom(ctx context.Context, chatID int, username string) (err error) {
-	defer func() { err = e.WrapIfErr("can't do command: can't send random", err) }()
+	defer func() { err = e.WrapIfErr("can't do command: send random", err) }()
 
 	sendMsg := NewMessageSender(ctx, chatID, d.tg)
 
@@ -98,7 +120,7 @@ func (d *Dispatcher) sendHelp(ctx context.Context, chatID int) error {
 }
 
 func (d *Dispatcher) sendList(ctx context.Context, chatID int) (err error) {
-	defer func() { err = e.WrapIfErr("can't do command: can't send list", err) }()
+	defer func() { err = e.WrapIfErr("can't do command: send list", err) }()
 
 	sendMsg := NewMessageSender(ctx, chatID, d.tg)
 
@@ -136,4 +158,8 @@ func isURL(text string) bool {
 	u, err := url.Parse(text)
 
 	return err == nil && u.Host != ""
+}
+
+func isRemoveCmd(text string) bool {
+	return strings.HasPrefix(text, RemoveCmd)
 }
