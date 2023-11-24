@@ -42,6 +42,6 @@ make run host="api.telegram.org" token="your-token"
 
 - [x] Улучшенный вывод списка
 - [x] Удаление ссылок
-- [ ] Добавление категорий
+- [ ] <span style="text-decoration: line-through;">Добавление категорий</span>
 - [ ] Уведомления
 - [ ] Импорт и экспорт ссылок
